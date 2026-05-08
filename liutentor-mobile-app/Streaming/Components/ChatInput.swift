@@ -26,9 +26,10 @@ struct ChatInput: View {
                     .font(.system(.body))
                     .tint(.liutentorPrimary)
                     .lineLimit(1...6)
+                    .scrollDismissesKeyboard(.never)
                     .padding(.leading, 16)
                     .padding(.vertical, 12)
-                    .submitLabel(.send)
+                    .submitLabel(.return)
 
                 Button {
                     if isLoading {

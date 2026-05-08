@@ -99,9 +99,34 @@ private struct LoadedExamView: View {
     @Binding var showSolution: Bool
     @Binding var showChat: Bool
 
+    @StateObject private var chatViewModel: ChatViewModel
+
+    init(
+        detail: ExamDetail,
+        courseCode: String,
+        examDate: String,
+        showSolution: Binding<Bool>,
+        showChat: Binding<Bool>
+    ) {
+        self.detail = detail
+        self.courseCode = courseCode
+        self.examDate = examDate
+        self._showSolution = showSolution
+        self._showChat = showChat
+
+        self._chatViewModel = StateObject(
+            wrappedValue: ChatViewModel(
+                examId: detail.exam.id,
+                courseCode: courseCode,
+                examURL: detail.exam.pdfURL,
+                solutionURL: detail.solution?.pdfURL
+            )
+        )
+    }
+
     var body: some View {
         PDFLoaderView(urlString: detail.exam.pdfURL)
-            .ignoresSafeArea(edges: .bottom)
+            .ignoresSafeArea()
             .sheet(isPresented: $showSolution) {
                 if let solutionURL = solutionPDFURL {
                     SolutionSheet(
@@ -117,16 +142,10 @@ private struct LoadedExamView: View {
                     .presentationContentInteraction(.scrolls)
                 }
             }
-            .sheet(isPresented: $showChat) {
+            .fullScreenCover(isPresented: $showChat) {
                 ChatView(
-                    examId: detail.exam.id,
-                    courseCode: courseCode,
-                    examURL: detail.exam.pdfURL,
-                    solutionURL: detail.solution?.pdfURL
+                    viewModel: chatViewModel
                 )
-                .presentationDetents([.medium, .large])
-                .presentationDragIndicator(.visible)
-                .presentationBackgroundInteraction(.enabled(upThrough: .medium))
             }
     }
 

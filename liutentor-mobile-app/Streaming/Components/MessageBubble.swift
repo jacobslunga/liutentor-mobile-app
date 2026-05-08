@@ -101,9 +101,9 @@ private struct StreamingCaret: View {
     @State private var visible = true
 
     var body: some View {
-        Rectangle()
-            .fill(Color.liutentorPrimary)
-            .frame(width: 8, height: 16)
+        Circle()
+            .fill(.foreground)
+            .frame(width: 8, height: 8)
             .opacity(visible ? 1 : 0)
             .onAppear {
                 withAnimation(

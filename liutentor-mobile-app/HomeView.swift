@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct HomeView: View {
-    
     @State private var navPath = NavigationPath()
 
     var body: some View {
@@ -72,6 +71,7 @@ struct FloatingSearchBar: View {
                 .focused($isFocused)
                 .autocorrectionDisabled()
                 .textInputAutocapitalization(.characters)
+                
                 .font(.system(.body))
                 .tint(.liutentorPrimary)
                 .padding(8)
@@ -112,7 +112,7 @@ struct FloatingSearchBar: View {
                 .shadow(color: .black.opacity(0.04), radius: 3, x: 0, y: 1)
                 .overlay {
                     Capsule()
-                        .strokeBorder(Color.primary.opacity(0.2), lineWidth: 1)
+                        .strokeBorder(Color.primary.opacity(0.1), lineWidth: 0.8)
                 }
         }
         .onAppear {

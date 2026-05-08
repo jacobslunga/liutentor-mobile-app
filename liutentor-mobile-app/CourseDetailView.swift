@@ -159,27 +159,6 @@ private struct CourseHeader: View {
                 .font(.system(.title2))
                 .fontWeight(.semibold)
                 .fixedSize(horizontal: false, vertical: true)
-
-            HStack(spacing: 8) {
-                StatBadge(
-                    icon: "doc.text",
-                    value: "\(examCount)",
-                    label: "tentor"
-                )
-                StatBadge(
-                    icon: "checkmark.circle",
-                    value: "\(examsWithSolutions)",
-                    label: "med facit"
-                )
-                if let rate = avgPassRate {
-                    StatBadge(
-                        icon: "chart.line.uptrend.xyaxis",
-                        value: "\(rate)%",
-                        label: "snitt godkänd",
-                        valueColor: passColor(rate)
-                    )
-                }
-            }
         }
     }
 
@@ -187,38 +166,6 @@ private struct CourseHeader: View {
         if rate >= 50 { return .green }
         if rate >= 30 { return .orange }
         return .red
-    }
-}
-
-private struct StatBadge: View {
-    let icon: String
-    let value: String
-    let label: String
-    var valueColor: Color = .primary
-
-    var body: some View {
-        HStack(spacing: 6) {
-            Image(systemName: icon)
-                .font(.system(size: 11))
-                .foregroundStyle(.secondary)
-            Text(value)
-                .font(.system(.caption))
-                .fontWeight(.medium)
-                .foregroundStyle(valueColor)
-            Text(label)
-                .font(.system(.caption))
-                .foregroundStyle(.secondary)
-        }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 6)
-        .background(
-            RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .fill(Color.primary.opacity(0.04))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8, style: .continuous)
-                        .strokeBorder(Color.primary.opacity(0.08), lineWidth: 1)
-                )
-        )
     }
 }
 

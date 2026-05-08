@@ -8,23 +8,11 @@
 import SwiftUI
 
 struct ChatView: View {
-    @StateObject private var viewModel: ChatViewModel
+    @ObservedObject var viewModel: ChatViewModel
     @Environment(\.dismiss) private var dismiss
 
     @State private var isAtBottom = true
     @State private var showScrollButton = false
-
-    init(examId: Int, courseCode: String, examURL: String, solutionURL: String?)
-    {
-        _viewModel = StateObject(
-            wrappedValue: ChatViewModel(
-                examId: examId,
-                courseCode: courseCode,
-                examURL: examURL,
-                solutionURL: solutionURL
-            )
-        )
-    }
 
     var body: some View {
         NavigationStack {
@@ -70,7 +58,7 @@ struct ChatView: View {
                             object: nil
                         )
                     }
-                    .padding(.bottom, 110)
+                    .padding(.bottom, 90)
                     .transition(.scale.combined(with: .opacity))
                 }
             }
@@ -128,6 +116,11 @@ private struct MessagesScrollView: View {
                 .padding(.top, 12)
             }
             .scrollDismissesKeyboard(.interactively)
+            .onAppear {
+                if !messages.isEmpty {
+                    proxy.scrollTo("bottom", anchor: .bottom)
+                }
+            }
             .onChange(of: messages.count) { _, _ in
                 withAnimation(.easeOut(duration: 0.25)) {
                     proxy.scrollTo("bottom", anchor: .bottom)
@@ -151,7 +144,7 @@ private struct ScrollToBottomButton: View {
         Button(action: onTap) {
             Image(systemName: "arrow.down")
                 .font(.system(size: 14, weight: .semibold))
-                .foregroundStyle(.primary)
+                .foregroundStyle(.foreground)
                 .frame(width: 36, height: 36)
                 .glassEffect(in: Circle())
         }
