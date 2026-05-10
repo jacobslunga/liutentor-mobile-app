@@ -9,43 +9,55 @@ import SwiftUI
 
 struct HomeView: View {
     @State private var navPath = NavigationPath()
+    @State private var searchFocusRequest = 0
 
     var body: some View {
         NavigationStack(path: $navPath) {
-            LandingView { courseCode in
-                navPath.append(courseCode)
-            }
+            LandingView(
+                focusRequest: searchFocusRequest,
+                onSelect: { courseCode in
+                    navPath.append(courseCode)
+                }
+            )
             .navigationBarHidden(true)
             .navigationDestination(for: String.self) { courseCode in
                 CourseDetailView(courseCode: courseCode)
             }
         }
+        .onChange(of: navPath.count) { _, count in
+            guard count == 0 else { return }
+            searchFocusRequest += 1
+        }
     }
 }
 
 struct LandingView: View {
+    let focusRequest: Int
     var onSelect: (String) -> Void
 
     @State private var searchText = ""
 
     var body: some View {
-        ZStack(alignment: .bottom) {
+        ZStack {
             VStack {
                 Spacer()
                 LogoHeader()
                 Spacer()
             }
-
+        }
+        .padding(.horizontal, 24)
+        .safeAreaInset(edge: .bottom) {
             FloatingSearchBar(
                 text: $searchText,
+                focusRequest: focusRequest,
                 onSubmit: { code in
                     searchText = ""
                     onSelect(code)
                 }
             )
+            .padding(.horizontal, 24)
+            .padding(.bottom, 20)
         }
-        .padding(.horizontal, 24)
-        .padding(.bottom, 20)
     }
 }
 
@@ -62,6 +74,7 @@ struct LogoHeader: View {
 
 struct FloatingSearchBar: View {
     @Binding var text: String
+    let focusRequest: Int
     var onSubmit: (String) -> Void
     @FocusState private var isFocused: Bool
 
@@ -79,11 +92,11 @@ struct FloatingSearchBar: View {
                     text = newValue.uppercased()
                 }
                 .onSubmit {
-                    if !text.isEmpty { onSubmit(text) }
+                    submit()
                 }
 
             Button {
-                if !text.isEmpty { onSubmit(text) }
+                submit()
             } label: {
                 Image(systemName: "arrow.up")
                     .font(.system(size: 15, weight: .bold))
@@ -116,6 +129,21 @@ struct FloatingSearchBar: View {
                 }
         }
         .onAppear {
+            focusSearchField()
+        }
+        .onChange(of: focusRequest) { _, _ in
+            focusSearchField()
+        }
+    }
+
+    private func submit() {
+        guard !text.isEmpty else { return }
+        isFocused = false
+        onSubmit(text)
+    }
+
+    private func focusSearchField() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
             isFocused = true
         }
     }

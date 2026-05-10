@@ -15,7 +15,6 @@ struct ExamDetailView: View {
     @StateObject private var viewModel = ExamDetailViewModel()
     @State private var showSolution = false
     @State private var showChat = false
-    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         Group {
@@ -39,52 +38,41 @@ struct ExamDetailView: View {
                 )
             }
         }
-        .navigationBarBackButtonHidden(true)
         .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                Button {
-                    dismiss()
-                } label: {
-                    Image(systemName: "chevron.left")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundStyle(.primary)
-                }
-            }
-
             ToolbarItem(placement: .principal) {
                 VStack(spacing: 0) {
                     Text(examDate)
                         .font(.system(.subheadline))
                         .fontWeight(.semibold)
+                        .foregroundStyle(.primary)
                     Text(courseCode)
                         .font(.system(.caption2, design: .monospaced))
                         .foregroundStyle(.secondary)
                 }
             }
 
-            ToolbarItem(placement: .topBarTrailing) {
-                HStack(spacing: 8) {
+            ToolbarItemGroup(placement: .topBarTrailing) {
+                Button {
+                    showChat = true
+                } label: {
+                    Image(systemName: "captions.bubble")
+                        .font(.system(size: 15, weight: .semibold))
+                }
+
+                if case .loaded(let detail) = viewModel.state,
+                    detail.solution != nil
+                {
                     Button {
-                        showChat = true
+                        showSolution = true
                     } label: {
-                        Image(systemName: "captions.bubble")
+                        Image(systemName: "book")
                             .font(.system(size: 15, weight: .semibold))
                     }
-
-                    if case .loaded(let detail) = viewModel.state,
-                        detail.solution != nil
-                    {
-                        Button {
-                            showSolution = true
-                        } label: {
-                            Image(systemName: "book")
-                                .font(.system(size: 15, weight: .semibold))
-                        }
-                    }
                 }
-                .padding(8)
             }
         }
+        .tint(.primary)
+        .toolbarBackground(Color(.systemBackground), for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
         .task {
             await viewModel.load(examId: examId)
@@ -98,6 +86,7 @@ private struct LoadedExamView: View {
     let examDate: String
     @Binding var showSolution: Bool
     @Binding var showChat: Bool
+    @Environment(\.colorScheme) private var colorScheme
 
     @StateObject private var chatViewModel: ChatViewModel
 
@@ -126,7 +115,7 @@ private struct LoadedExamView: View {
 
     var body: some View {
         PDFLoaderView(urlString: detail.exam.pdfURL)
-            .ignoresSafeArea()
+            .background(pdfBackground.ignoresSafeArea(edges: .bottom))
             .sheet(isPresented: $showSolution) {
                 if let solutionURL = solutionPDFURL {
                     SolutionSheet(
@@ -149,6 +138,10 @@ private struct LoadedExamView: View {
             }
     }
 
+    private var pdfBackground: Color {
+        colorScheme == .dark ? .black : .white
+    }
+
     private var solutionPDFURL: String? {
         guard let pdfURL = detail.solution?.pdfURL, !pdfURL.isEmpty else {
             return nil
@@ -162,11 +155,11 @@ private struct SolutionSheet: View {
     let courseCode: String
     let examDate: String
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         NavigationStack {
             PDFLoaderView(urlString: pdfURL)
-                .ignoresSafeArea(edges: .bottom)
                 .navigationTitle("Facit")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
@@ -175,6 +168,7 @@ private struct SolutionSheet: View {
                             Text("Facit")
                                 .font(.system(.subheadline))
                                 .fontWeight(.semibold)
+                                .foregroundStyle(.primary)
                             Text("\(courseCode) · \(examDate)")
                                 .font(.system(.caption2, design: .monospaced))
                                 .foregroundStyle(.secondary)
@@ -191,7 +185,15 @@ private struct SolutionSheet: View {
                         }
                     }
                 }
+                .tint(.primary)
+                .toolbarBackground(Color(.systemBackground), for: .navigationBar)
+                .toolbarBackground(.visible, for: .navigationBar)
         }
+        .presentationBackground(sheetBackground)
+    }
+
+    private var sheetBackground: Color {
+        colorScheme == .dark ? .black : Color(.systemBackground)
     }
 }
 
