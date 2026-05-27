@@ -25,16 +25,18 @@ enum HTTPMethod: String {
 
 extension APIEndpoint {
     var baseURL: String {
-        "https://liutentor-go-api-production.up.railway.app/v1"
+        "https://liutentor-go-687405545415.europe-west1.run.app"
     }
     var method: HTTPMethod { .GET }
     var queryItems: [URLQueryItem]? { nil }
     var headers: [String: String]? { nil }
 
     func asURLRequest() throws -> URLRequest {
-        guard var components = URLComponents(string: baseURL + path) else {
+        guard var components = URLComponents(string: baseURL) else {
             throw APIError.invalidURL
         }
+
+        components.path = "/v1" + path
         components.queryItems = queryItems
 
         guard let url = components.url else {
@@ -44,7 +46,10 @@ extension APIEndpoint {
         var request = URLRequest(url: url)
         request.httpMethod = method.rawValue
         request.setValue("application/json", forHTTPHeaderField: "Accept")
-        headers?.forEach { request.setValue($1, forHTTPHeaderField: $0) }
+        headers?.forEach { key, value in
+            request.setValue(value, forHTTPHeaderField: key)
+        }
+
         return request
     }
 }
@@ -56,7 +61,8 @@ enum ExamEndpoint: APIEndpoint {
     var path: String {
         switch self {
         case .examsByCourseCode(let courseCode):
-            return "/exams/LIU/\(courseCode)"
+            return
+                "/exams/LIU/\(courseCode.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? courseCode)"
         case .examById(let examId):
             return "/exams/\(examId)"
         }

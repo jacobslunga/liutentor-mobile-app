@@ -23,7 +23,7 @@ final class ChatService: ChatServiceProtocol {
 
     init(
         baseURL: String =
-            "https://liutentor-api-production.up.railway.app/api/v1",
+            "https://liutentor-hono-687405545415.europe-north2.run.app",
         session: URLSession = .shared
     ) {
         self.baseURL = baseURL
