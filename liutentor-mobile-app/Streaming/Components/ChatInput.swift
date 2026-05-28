@@ -14,7 +14,7 @@ struct ChatInput: View {
     var onSend: () -> Void
     var onCancel: () -> Void
 
-    @FocusState private var isFocused: Bool
+    @FocusState.Binding var isFocused: Bool
 
     private let maxLength = 4000
 

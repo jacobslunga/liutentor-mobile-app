@@ -65,35 +65,89 @@ private struct AssistantBubble: View {
 }
 
 private struct ThinkingIndicator: View {
-    @State private var phase: Double = 0
-
     var body: some View {
         HStack(spacing: 8) {
-            HStack(spacing: 4) {
-                ForEach(0..<3) { i in
-                    Circle()
-                        .fill(Color.secondary)
-                        .frame(width: 6, height: 6)
-                        .opacity(0.3 + 0.7 * dotOpacity(for: i))
-                }
-            }
-            Text("Tänker...")
-                .font(.system(.subheadline))
-                .foregroundStyle(.secondary)
+            VariableSpinner(size: 16)
+            ShimmerText(text: "Tänker...", font: .system(.subheadline))
         }
-        .onAppear {
-            withAnimation(
-                .easeInOut(duration: 1.2).repeatForever(autoreverses: false)
-            ) {
-                phase = 1
+        .frame(height: 24)
+    }
+}
+
+private struct VariableSpinner: View {
+    var size: CGFloat = 16
+    var lineWidth: CGFloat = 1.8
+
+    @State private var rotation: Double = 0
+    @State private var spinTask: Task<Void, Never>?
+
+    var body: some View {
+        Circle()
+            .trim(from: 0, to: 0.75)
+            .stroke(
+                Color.secondary,
+                style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
+            )
+            .frame(width: size, height: size)
+            .rotationEffect(.degrees(rotation))
+            .onAppear { start() }
+            .onDisappear { cancel() }
+    }
+
+    private func start() {
+        cancel()
+        // Mirrors the four cubic-bezier keyframes from the CSS variable-spin.
+        let curves: [(Double, Double, Double, Double)] = [
+            (0.4, 0, 0.2, 1),
+            (0.8, 0, 0.2, 1),
+            (0.4, 0, 0.6, 1),
+            (0.8, 0, 0.2, 1),
+        ]
+        spinTask = Task { @MainActor in
+            while !Task.isCancelled {
+                for (a, b, c, d) in curves {
+                    withAnimation(.timingCurve(a, b, c, d, duration: 1)) {
+                        rotation += 180
+                    }
+                    do { try await Task.sleep(for: .seconds(1)) }
+                    catch { return }
+                }
             }
         }
     }
 
-    private func dotOpacity(for index: Int) -> Double {
-        let offset = Double(index) * 0.2
-        let value = sin((phase + offset) * .pi * 2)
-        return (value + 1) / 2
+    private func cancel() {
+        spinTask?.cancel()
+        spinTask = nil
+    }
+}
+
+private struct ShimmerText: View {
+    let text: String
+    let font: Font
+    var cycle: Double = 3.2
+
+    var body: some View {
+        TimelineView(.animation(minimumInterval: 1.0 / 60.0)) { context in
+            let elapsed = context.date.timeIntervalSinceReferenceDate
+            let phase = (elapsed.truncatingRemainder(dividingBy: cycle)) / cycle
+
+            Text(text)
+                .font(font)
+                .foregroundStyle(
+                    LinearGradient(
+                        stops: [
+                            .init(color: .secondary.opacity(0.6), location: 0),
+                            .init(color: .secondary.opacity(0.6), location: 0.35),
+                            .init(color: .primary, location: 0.5),
+                            .init(color: .secondary.opacity(0.6), location: 0.65),
+                            .init(color: .secondary.opacity(0.6), location: 1),
+                        ],
+                        startPoint: UnitPoint(x: 2 - phase * 3, y: 0.5),
+                        endPoint: UnitPoint(x: 3 - phase * 3, y: 0.5)
+                    )
+                )
+        }
     }
 }
 

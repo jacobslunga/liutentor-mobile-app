@@ -11,6 +11,7 @@ struct ChatView: View {
     @ObservedObject var viewModel: ChatViewModel
     @Environment(\.dismiss) private var dismiss
 
+    @FocusState private var isInputFocused: Bool
     @State private var isAtBottom = true
     @State private var showScrollButton = false
 
@@ -19,10 +20,14 @@ struct ChatView: View {
             ZStack(alignment: .bottom) {
                 if viewModel.messages.isEmpty {
                     EmptyChatState()
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .contentShape(Rectangle())
+                        .onTapGesture { isInputFocused = false }
                 } else {
                     MessagesScrollView(
                         messages: viewModel.messages,
-                        showScrollButton: $showScrollButton
+                        showScrollButton: $showScrollButton,
+                        isInputFocused: $isInputFocused
                     )
                 }
 
@@ -43,7 +48,8 @@ struct ChatView: View {
                         isLoading: viewModel.isLoading,
                         canSend: viewModel.canSend,
                         onSend: { viewModel.send() },
-                        onCancel: { viewModel.cancel() }
+                        onCancel: { viewModel.cancel() },
+                        isFocused: $isInputFocused
                     )
                     .padding(.horizontal, 12)
                     .padding(.bottom, 4)
@@ -97,11 +103,12 @@ struct ChatView: View {
 private struct MessagesScrollView: View {
     let messages: [ChatMessage]
     @Binding var showScrollButton: Bool
+    @FocusState.Binding var isInputFocused: Bool
 
     var body: some View {
         ScrollViewReader { proxy in
             ScrollView {
-                LazyVStack(alignment: .leading, spacing: 16) {
+                LazyVStack(alignment: .leading, spacing: 24) {
                     ForEach(messages) { message in
                         MessageBubble(message: message)
                             .id(message.id)
@@ -116,8 +123,18 @@ private struct MessagesScrollView: View {
                 .padding(.top, 12)
             }
             .scrollDismissesKeyboard(.interactively)
+            .simultaneousGesture(
+                TapGesture().onEnded { isInputFocused = false }
+            )
             .onAppear {
-                if !messages.isEmpty {
+                guard !messages.isEmpty else { return }
+                // Defer past the initial layout pass so the LazyVStack and
+                // any WebView rows have measured their heights.
+                DispatchQueue.main.async {
+                    proxy.scrollTo("bottom", anchor: .bottom)
+                }
+                // Re-anchor once WebView heights have streamed back in.
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
                     proxy.scrollTo("bottom", anchor: .bottom)
                 }
             }

@@ -15,7 +15,7 @@ final class ChatViewModel: ObservableObject {
     @Published private(set) var isLoading: Bool = false
 
     private let service: ChatServiceProtocol
-    private let modelId = "gemini-3.1-flash-lite-preview"
+    private let modelId = "gemini-3.1-flash-lite"
     private let maxRecentMessages = 10
     private var streamTask: Task<Void, Never>?
 
