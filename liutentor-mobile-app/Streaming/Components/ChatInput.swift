@@ -23,7 +23,7 @@ struct ChatInput: View {
             HStack(alignment: .bottom, spacing: 6) {
                 TextField("Fråga om tentan...", text: $text, axis: .vertical)
                     .focused($isFocused)
-                    .font(.system(.body))
+                    .font(.app(.body))
                     .tint(.liutentorPrimary)
                     .lineLimit(1...6)
                     .scrollDismissesKeyboard(.never)
@@ -39,7 +39,7 @@ struct ChatInput: View {
                     }
                 } label: {
                     Image(systemName: isLoading ? "stop.fill" : "arrow.up")
-                        .font(.system(size: 13, weight: .bold))
+                        .font(.app(size: 13, weight: .bold))
                         .foregroundStyle(.liutentorPrimaryForeground)
                         .frame(width: 32, height: 32)
                         .background(
@@ -70,16 +70,15 @@ struct ChatInput: View {
 
             HStack {
                 Text("AI kan göra misstag.")
-                    .font(.system(size: 10))
+                    .font(.app(size: 10))
                     .foregroundStyle(.tertiary)
                 Spacer()
                 if text.count > Int(Double(maxLength) * 0.8) {
                     Text("\(text.count) / \(maxLength)")
-                        .font(.system(size: 10))
+                        .font(.app(size: 10, weight: text.count > maxLength ? .bold : .regular))
                         .foregroundStyle(
                             text.count > maxLength ? .red : .secondary
                         )
-                        .fontWeight(text.count > maxLength ? .bold : .regular)
                 }
             }
             .padding(.horizontal, 8)

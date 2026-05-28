@@ -42,11 +42,10 @@ struct ExamDetailView: View {
             ToolbarItem(placement: .principal) {
                 VStack(spacing: 0) {
                     Text(examDate)
-                        .font(.system(.subheadline))
-                        .fontWeight(.semibold)
+                        .font(.app(.subheadline, weight: .semibold))
                         .foregroundStyle(.primary)
                     Text(courseCode)
-                        .font(.system(.caption2, design: .monospaced))
+                        .font(.app(.caption2))
                         .foregroundStyle(.secondary)
                 }
             }
@@ -56,7 +55,7 @@ struct ExamDetailView: View {
                     showChat = true
                 } label: {
                     Image(systemName: "captions.bubble")
-                        .font(.system(size: 15, weight: .semibold))
+                        .font(.app(size: 15, weight: .semibold))
                 }
 
                 if case .loaded(let detail) = viewModel.state,
@@ -66,7 +65,7 @@ struct ExamDetailView: View {
                         showSolution = true
                     } label: {
                         Image(systemName: "book")
-                            .font(.system(size: 15, weight: .semibold))
+                            .font(.app(size: 15, weight: .semibold))
                     }
                 }
             }
@@ -132,9 +131,7 @@ private struct LoadedExamView: View {
                 }
             }
             .fullScreenCover(isPresented: $showChat) {
-                ChatView(
-                    viewModel: chatViewModel
-                )
+                ChatView(viewModel: chatViewModel)
             }
     }
 
@@ -166,11 +163,10 @@ private struct SolutionSheet: View {
                     ToolbarItem(placement: .principal) {
                         VStack(spacing: 0) {
                             Text("Facit")
-                                .font(.system(.subheadline))
-                                .fontWeight(.semibold)
+                                .font(.app(.subheadline, weight: .semibold))
                                 .foregroundStyle(.primary)
                             Text("\(courseCode) · \(examDate)")
-                                .font(.system(.caption2, design: .monospaced))
+                                .font(.app(.caption2))
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -179,7 +175,7 @@ private struct SolutionSheet: View {
                             dismiss()
                         } label: {
                             Image(systemName: "xmark")
-                                .font(.system(size: 13, weight: .bold))
+                                .font(.app(size: 13, weight: .bold))
                                 .foregroundStyle(.secondary)
                                 .frame(width: 28, height: 28)
                         }
@@ -204,13 +200,12 @@ private struct ExamErrorView: View {
     var body: some View {
         VStack(spacing: 16) {
             Image(systemName: "exclamationmark.triangle")
-                .font(.system(size: 32, weight: .light))
+                .font(.app(size: 32))
                 .foregroundStyle(.orange)
             Text("Något gick fel")
-                .font(.system(.subheadline))
-                .fontWeight(.medium)
+                .font(.app(.subheadline, weight: .medium))
             Text(error.localizedDescription)
-                .font(.system(.caption))
+                .font(.app(.caption))
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
             Button("Försök igen", action: onRetry)

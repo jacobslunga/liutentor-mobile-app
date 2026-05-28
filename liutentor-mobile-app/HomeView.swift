@@ -84,8 +84,7 @@ struct FloatingSearchBar: View {
                 .focused($isFocused)
                 .autocorrectionDisabled()
                 .textInputAutocapitalization(.characters)
-                
-                .font(.system(.body))
+                .font(.app(.body))
                 .tint(.liutentorPrimary)
                 .padding(8)
                 .onChange(of: text) { _, newValue in
@@ -99,7 +98,7 @@ struct FloatingSearchBar: View {
                 submit()
             } label: {
                 Image(systemName: "arrow.up")
-                    .font(.system(size: 15, weight: .bold))
+                    .font(.app(size: 15, weight: .bold))
                     .foregroundStyle(.white)
                     .frame(width: 34, height: 34)
                     .background(

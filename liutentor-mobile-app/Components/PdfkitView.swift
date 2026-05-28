@@ -209,7 +209,7 @@ struct PDFLoaderView: View {
                             }
                         } label: {
                             Image(systemName: "arrow.up")
-                                .font(.system(size: 16, weight: .semibold))
+                                .font(.app(size: 16, weight: .semibold))
                                 .foregroundStyle(.primary)
                                 .frame(width: 44, height: 44)
                                 .background {
@@ -233,10 +233,10 @@ struct PDFLoaderView: View {
             } else {
                 VStack(spacing: 12) {
                     Image(systemName: "doc.questionmark")
-                        .font(.system(size: 32, weight: .light))
+                        .font(.app(size: 32))
                         .foregroundStyle(.secondary)
                     Text("Ogiltig PDF-länk")
-                        .font(.system(.subheadline))
+                        .font(.app(.subheadline))
                         .foregroundStyle(.secondary)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)

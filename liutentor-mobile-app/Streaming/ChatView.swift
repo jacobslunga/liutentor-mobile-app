@@ -78,10 +78,9 @@ struct ChatView: View {
                 ToolbarItem(placement: .principal) {
                     VStack(spacing: 0) {
                         Text("Chatt")
-                            .font(.system(.subheadline))
-                            .fontWeight(.semibold)
+                            .font(.app(.subheadline, weight: .semibold))
                         Text(viewModel.courseCode)
-                            .font(.system(.caption2, design: .monospaced))
+                            .font(.app(.caption2))
                             .foregroundStyle(.secondary)
                     }
                 }
@@ -90,7 +89,7 @@ struct ChatView: View {
                         dismiss()
                     } label: {
                         Image(systemName: "xmark")
-                            .font(.system(size: 13, weight: .bold))
+                            .font(.app(size: 13, weight: .bold))
                             .foregroundStyle(.secondary)
                             .frame(width: 28, height: 28)
                     }
@@ -128,12 +127,9 @@ private struct MessagesScrollView: View {
             )
             .onAppear {
                 guard !messages.isEmpty else { return }
-                // Defer past the initial layout pass so the LazyVStack and
-                // any WebView rows have measured their heights.
                 DispatchQueue.main.async {
                     proxy.scrollTo("bottom", anchor: .bottom)
                 }
-                // Re-anchor once WebView heights have streamed back in.
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
                     proxy.scrollTo("bottom", anchor: .bottom)
                 }
@@ -160,7 +156,7 @@ private struct ScrollToBottomButton: View {
     var body: some View {
         Button(action: onTap) {
             Image(systemName: "arrow.down")
-                .font(.system(size: 14, weight: .semibold))
+                .font(.app(size: 14, weight: .semibold))
                 .foregroundStyle(.foreground)
                 .frame(width: 36, height: 36)
                 .glassEffect(in: Circle())
@@ -173,12 +169,11 @@ private struct EmptyChatState: View {
         VStack(spacing: 16) {
             Spacer()
             Text("Vad kan jag hjälpa till med?")
-                .font(.system(.title3))
-                .fontWeight(.medium)
+                .font(.app(.title3, weight: .medium))
             Text(
                 "Ställ frågor om tentan, be om ledtrådar eller få hjälp att förstå lösningarna."
             )
-            .font(.system(.subheadline))
+            .font(.app(.subheadline))
             .foregroundStyle(.secondary)
             .multilineTextAlignment(.center)
             .padding(.horizontal, 32)
