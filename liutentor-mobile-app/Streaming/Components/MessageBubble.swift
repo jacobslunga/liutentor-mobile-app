@@ -30,7 +30,7 @@ private struct UserBubble: View {
         HStack {
             Spacer(minLength: 40)
             Text(content)
-                .font(.app(.body))
+                .font(.system(.body))
                 .lineSpacing(2)
                 .padding(.horizontal, 14)
                 .padding(.vertical, 10)
@@ -68,7 +68,7 @@ private struct ThinkingIndicator: View {
     var body: some View {
         HStack(spacing: 8) {
             VariableSpinner(size: 16)
-            ShimmerText(text: "Tänker...", font: .app(.subheadline))
+            ShimmerText(text: "Tänker...", font: .system(.subheadline))
         }
         .frame(height: 24)
     }

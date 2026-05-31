@@ -78,9 +78,9 @@ struct ChatView: View {
                 ToolbarItem(placement: .principal) {
                     VStack(spacing: 0) {
                         Text("Chatt")
-                            .font(.app(.subheadline, weight: .semibold))
+                            .font(.system(.subheadline, weight: .semibold))
                         Text(viewModel.courseCode)
-                            .font(.app(.caption2))
+                            .font(.system(.caption2))
                             .foregroundStyle(.secondary)
                     }
                 }
@@ -89,8 +89,7 @@ struct ChatView: View {
                         dismiss()
                     } label: {
                         Image(systemName: "xmark")
-                            .font(.app(size: 13, weight: .bold))
-                            .foregroundStyle(.secondary)
+                            .font(.system(size: 13, weight: .bold))
                             .frame(width: 28, height: 28)
                     }
                 }
@@ -156,7 +155,7 @@ private struct ScrollToBottomButton: View {
     var body: some View {
         Button(action: onTap) {
             Image(systemName: "arrow.down")
-                .font(.app(size: 14, weight: .semibold))
+                .font(.system(size: 14, weight: .semibold))
                 .foregroundStyle(.foreground)
                 .frame(width: 36, height: 36)
                 .glassEffect(in: Circle())
@@ -169,11 +168,11 @@ private struct EmptyChatState: View {
         VStack(spacing: 16) {
             Spacer()
             Text("Vad kan jag hjälpa till med?")
-                .font(.app(.title3, weight: .medium))
+                .font(.system(.title3, weight: .medium))
             Text(
                 "Ställ frågor om tentan, be om ledtrådar eller få hjälp att förstå lösningarna."
             )
-            .font(.app(.subheadline))
+            .font(.system(.subheadline))
             .foregroundStyle(.secondary)
             .multilineTextAlignment(.center)
             .padding(.horizontal, 32)

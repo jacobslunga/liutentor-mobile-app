@@ -54,13 +54,13 @@ private struct EmptyState: View {
         VStack(spacing: 16) {
             Spacer()
             Image(systemName: "tray")
-                .font(.app(size: 36))
+                .font(.system(size: 36))
                 .foregroundStyle(.secondary)
             VStack(spacing: 4) {
                 Text("Inga tentor hittades")
-                    .font(.app(.subheadline, weight: .medium))
+                    .font(.system(.subheadline, weight: .medium))
                 Text("Var den första att ladda upp tentor för \(courseCode)!")
-                    .font(.app(.caption))
+                    .font(.system(.caption))
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
             }
@@ -79,12 +79,12 @@ private struct ErrorState: View {
         VStack(spacing: 16) {
             Spacer()
             Image(systemName: "exclamationmark.triangle")
-                .font(.app(size: 32))
+                .font(.system(size: 32))
                 .foregroundStyle(.orange)
             Text("Något gick fel")
-                .font(.app(.subheadline, weight: .medium))
+                .font(.system(.subheadline, weight: .medium))
             Text(error.localizedDescription)
-                .font(.app(.caption))
+                .font(.system(.caption))
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
             Button("Försök igen", action: onRetry)
@@ -101,15 +101,24 @@ private struct LoadedContent: View {
     let courseCode: String
     @ObservedObject var viewModel: CourseDetailViewModel
 
+    @State private var selectedExam: ExamRoute?
+
     var body: some View {
         List {
             if let name = viewModel.courseName, !name.isEmpty {
                 Text(name)
-                    .font(.app(size: 32, weight: .bold))
+                    .font(.system(size: 32, weight: .bold))
                     .foregroundStyle(.primary)
                     .fixedSize(horizontal: false, vertical: true)
                     .listRowSeparator(.hidden)
-                    .listRowInsets(EdgeInsets(top: 12, leading: 16, bottom: 8, trailing: 16))
+                    .listRowInsets(
+                        EdgeInsets(
+                            top: 12,
+                            leading: 16,
+                            bottom: 8,
+                            trailing: 16
+                        )
+                    )
             }
 
             if viewModel.filteredExams.isEmpty {
@@ -121,25 +130,40 @@ private struct LoadedContent: View {
                 .listRowSeparator(.hidden)
             } else {
                 ForEach(viewModel.filteredExams) { exam in
-                    NavigationLink(
-                        value: ExamRoute(
+                    Button {
+                        selectedExam = ExamRoute(
                             courseCode: courseCode,
                             examId: exam.id,
                             examDate: exam.examDate
                         )
-                    ) {
+                    } label: {
                         ExamRow(exam: exam)
                     }
+                    .buttonStyle(.plain)
                 }
             }
         }
         .listStyle(.plain)
-        .navigationDestination(for: ExamRoute.self) { route in
-            ExamDetailView(
-                examId: route.examId,
-                courseCode: route.courseCode,
-                examDate: route.examDate
-            )
+        .fullScreenCover(item: $selectedExam) { route in
+            NavigationStack {
+                ExamDetailView(
+                    examId: route.examId,
+                    courseCode: courseCode,
+                    examDate: route.examDate
+                )
+                .toolbar {
+                    ToolbarItem(placement: .topBarLeading) {
+                        Button {
+                            selectedExam = nil
+                        } label: {
+                            Image(systemName: "xmark")
+                                .font(.system(size: 13, weight: .bold))
+                                .frame(width: 28, height: 28)
+
+                        }
+                    }
+                }
+            }
         }
         .toolbar {
             ToolbarItemGroup(placement: .topBarTrailing) {
@@ -206,11 +230,11 @@ private struct ExamRow: View {
         HStack(spacing: 14) {
             VStack(alignment: .leading, spacing: 2) {
                 Text(exam.examName)
-                    .font(.app(.body, weight: .semibold))
+                    .font(.system(.body, weight: .semibold))
                     .foregroundStyle(.primary)
                     .lineLimit(1)
                 Text(exam.examDate)
-                    .font(.app(.subheadline))
+                    .font(.system(.subheadline))
                     .foregroundStyle(.secondary)
             }
 
@@ -218,30 +242,35 @@ private struct ExamRow: View {
 
             if let prefix = examPrefix {
                 Text(prefix)
-                    .font(.app(.caption, weight: .medium))
+                    .font(.system(.caption, weight: .medium))
                     .foregroundStyle(.secondary)
                     .padding(.horizontal, 10)
                     .padding(.vertical, 4)
                     .background(
                         Capsule()
-                            .strokeBorder(Color.primary.opacity(0.15), lineWidth: 1)
+                            .strokeBorder(
+                                Color.primary.opacity(0.15),
+                                lineWidth: 1
+                            )
                     )
             }
 
             Image(systemName: "checkmark")
-                .font(.app(size: 14, weight: .semibold))
-                .foregroundStyle(exam.hasSolution ? .green : Color.primary.opacity(0.15))
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundStyle(
+                    exam.hasSolution ? .green : Color.primary.opacity(0.15)
+                )
                 .frame(width: 18)
 
             if exam.passRate > 0 {
                 Text(String(format: "%.1f%%", exam.passRate))
-                    .font(.app(.subheadline, weight: .semibold))
+                    .font(.system(.subheadline, weight: .semibold))
                     .foregroundStyle(passColor)
                     .monospacedDigit()
                     .frame(minWidth: 56, alignment: .trailing)
             } else {
                 Text("—")
-                    .font(.app(.subheadline))
+                    .font(.system(.subheadline))
                     .foregroundStyle(.tertiary)
                     .frame(minWidth: 56, alignment: .trailing)
             }
@@ -250,8 +279,10 @@ private struct ExamRow: View {
     }
 }
 
-struct ExamRoute: Hashable {
+struct ExamRoute: Hashable, Identifiable {
     let courseCode: String
     let examId: Int
     let examDate: String
+
+    var id: Int { examId }
 }
